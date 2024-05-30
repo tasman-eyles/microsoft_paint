@@ -24,13 +24,13 @@ function App() {
       newUtensil[keyHolder] = updateItem.toLowerCase()
       setUtensil(newUtensil)
     }
-    
+
     console.log(newUtensil)
   }
 
   return (
     <div>
-      <h1>Tasman's paint!</h1>
+      <h1>Tasman's Canvas</h1>
       <Header handleUtensil={handleUtensil} />
       <Container utensil={utensil} />
     </div>
