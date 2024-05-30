@@ -30,7 +30,7 @@ function Container({ utensil }) {
 
   // finish bucket functionality (need brush done first)
 
-  // write brush functionality
+  // change color of brush reletive to what is selected
 
   let previousPosition = null
 
@@ -40,19 +40,26 @@ function Container({ utensil }) {
   }
 
   function handleMouseMove(event) {
-    console.log('Mouse moved!')
     if (draw) {
       const canvas = document.getElementById('canvas')
       const ctx = canvas.getContext('2d')
-      console.log('Canvas context:', ctx)
+      const rect = canvas.getBoundingClientRect()
+      const x = event.clientX - rect.left
+      const y = event.clientY - rect.top
+
+      function handleColor() {
+        ctx.strokeStyle = color
+      }
+
       if (previousPosition) {
         ctx.moveTo(previousPosition.x, previousPosition.y)
-        ctx.lineTo(event.clientX, event.clientY)
+        ctx.lineTo(x, y)
         ctx.stroke()
+        handleColor()
       }
-      previousPosition = { x: event.clientX, y: event.clientY }
+
+      previousPosition = { x, y }
     } else {
-      console.log('Draw is false')
     }
   }
 
