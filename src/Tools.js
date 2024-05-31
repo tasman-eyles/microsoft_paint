@@ -18,10 +18,10 @@ function Tools({ handleUtensil }) {
         🖌️
       </button>
       <button
-        name="bucket"
+        name="background"
         onClick={(event) => handleUtensil(event.target.name, "tool")}
       >
-        🪣
+        🖼️
       </button>
       <button
         name="eraser"

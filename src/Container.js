@@ -11,34 +11,51 @@ function Container({ utensil }) {
   })
 
   const [draw, SetDraw] = useState(false)
+  const [lineSegments, setLineSegments] = useState([])
+  const [currentColor, setCurrentColor] = useState('black')
+  const [thickness, setThickness] = useState(2)
 
   useEffect(() => {
     const canvas = document.getElementById('canvas')
-    const ctx = canvas.getContext('2d')
-    ctx.beginPath()
-  }, [])
+    if (canvas) {
+      const ctx = canvas.getContext('2d')
+      ctx.beginPath()
+      handleWeight(weight)
+    }
+  }, [weight])
 
-  function handleBucket() {
-    if (tool === 'bucket') {
-      const newItem = {
-        ...magic,
-        backgroundColor: color,
-      }
-      setMagic(newItem)
+  function handleBackground() {
+    if (tool === 'background') {
+      const canvas = document.getElementById('canvas')
+      const ctx = canvas.getContext('2d')
+      ctx.fillStyle = color
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
     }
   }
 
-  // finish bucket functionality (need brush done first)
-
-  // change color of brush reletive to what is selected
-
-  let previousPosition = null
-
-  function handleMouseDown(event) {
-    previousPosition = { x: event.clientX, y: event.clientY }
-    SetDraw(true)
+  function handleWeight(weight) {
+    if (weight !== undefined && weight !== null) {
+      if (weight === 'thin') {
+        setThickness(2)
+      } else if (weight === 'normal') {
+        setThickness(5)
+      } else if (weight === 'thick') {
+        setThickness(10)
+      } else if (weight === 'thicker') {
+        setThickness(16)
+      } else if (weight === 'thickest') {
+        setThickness(30)
+      }
+    }
   }
 
+  function handleMouseDown(event) {
+    if (tool !== 'background') {
+      SetDraw(true)
+    } else {
+      SetDraw(false)
+    }
+  }
   function handleMouseMove(event) {
     if (draw) {
       const canvas = document.getElementById('canvas')
@@ -46,31 +63,27 @@ function Container({ utensil }) {
       const rect = canvas.getBoundingClientRect()
       const x = event.clientX - rect.left
       const y = event.clientY - rect.top
-
-      function handleColor() {
-        ctx.strokeStyle = color
+      const newLineSegment = {
+        color: currentColor,
+        x1: x,
+        y1: y,
+        x2: x,
+        y2: y,
       }
 
-      if (previousPosition) {
-        ctx.moveTo(previousPosition.x, previousPosition.y)
-        ctx.lineTo(x, y)
-        ctx.stroke()
-        handleColor()
-      }
-
-      previousPosition = { x, y }
-    } else {
+      setLineSegments((prevLineSegments) => [
+        ...prevLineSegments,
+        newLineSegment,
+      ])
+      ctx.strokeStyle = color
+      ctx.lineWidth = thickness
+      ctx.lineCap = 'round'
+      ctx.beginPath()
+      ctx.moveTo(newLineSegment.x1, newLineSegment.y1)
+      ctx.lineTo(newLineSegment.x2, newLineSegment.y2)
+      ctx.stroke()
     }
   }
-
-  // write eraser functionality (same as brush, but color
-  // painted is the background color to give the eraser ilusion)
-
-  // function handleMousemove(event) {
-  //   if (tool === 'brush' && draw === true) {
-  //     console.log(event.screenX, event.screenY)
-  //   }
-  // }
 
   return (
     <div style={magic}>
@@ -80,7 +93,7 @@ function Container({ utensil }) {
         height={magic.height}
         onMouseDown={handleMouseDown}
         onMouseUp={() => SetDraw(false)}
-        onClick={handleBucket}
+        onClick={handleBackground}
         onMouseMove={handleMouseMove}
       ></canvas>
     </div>

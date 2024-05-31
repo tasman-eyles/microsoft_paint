@@ -8,7 +8,7 @@ import Container from './Container'
 function App() {
   const [utensil, setUtensil] = useState({
     tool: 'brush',
-    weight: 'normal',
+    weight: 'thickness',
     color: 'black',
   })
 
