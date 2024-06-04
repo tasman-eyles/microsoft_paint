@@ -96,6 +96,8 @@ function Container({ utensil }) {
     }
   }
 
+  // Fix lines producing dots in browser, but smooth with inspector tools open
+
   // add screenshot to new component file Screenshot.js
 
   // add screenshot to header component
