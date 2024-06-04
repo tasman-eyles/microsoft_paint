@@ -106,6 +106,8 @@ function Container({ utensil }) {
 
   // let background changeing not effect lines drawn
 
+  // make eraser have the color value of the selected background color, not white
+
   // add a color wheel as a new component
 
   // add a rainbow brush
