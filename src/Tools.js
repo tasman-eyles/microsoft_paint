@@ -1,6 +1,5 @@
 import React from 'react'
 
-
 function Tools({ handleUtensil }) {
   return (
     <div
@@ -13,19 +12,19 @@ function Tools({ handleUtensil }) {
     >
       <button
         name="brush"
-        onClick={(event) => handleUtensil(event.target.name, "tool")}
+        onClick={(event) => handleUtensil(event.target.name, 'tool')}
       >
         🖌️
       </button>
       <button
         name="background"
-        onClick={(event) => handleUtensil(event.target.name, "tool")}
+        onClick={(event) => handleUtensil(event.target.name, 'tool')}
       >
         🖼️
       </button>
       <button
         name="eraser"
-        onClick={(event) => handleUtensil(event.target.name, "tool")}
+        onClick={(event) => handleUtensil(event.target.name, 'tool')}
       >
         🧼
       </button>

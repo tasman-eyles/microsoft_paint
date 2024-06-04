@@ -3,8 +3,6 @@ import Header from './Header'
 import './style.css'
 import Container from './Container'
 
-
-
 function App() {
   const [utensil, setUtensil] = useState({
     tool: 'brush',
@@ -19,8 +17,7 @@ function App() {
       newUtensil['color'] = 'white'
       newUtensil['tool'] = 'brush'
       setUtensil(newUtensil)
-    } 
-    else {
+    } else {
       newUtensil[keyHolder] = updateItem.toLowerCase()
       setUtensil(newUtensil)
     }
