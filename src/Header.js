@@ -1,10 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Tools from './Tools'
 import ColorContainer from './ColorContainer.js'
 import Brush from './Brush'
 import './Header.css'
-import Container from './Container.js'
-import takeScreenshot from './Container.js'
 function Header({ handleUtensil }) {
   return (
     <>

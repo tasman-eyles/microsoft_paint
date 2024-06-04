@@ -96,6 +96,20 @@ function Container({ utensil }) {
     }
   }
 
+  // add screenshot to new component file Screenshot.js
+
+  // add screenshot to header component
+
+  // add background to new component file Background.js
+
+  // add weight to new component file Weight.js
+
+  // let background changeing not effect lines drawn
+
+  // add a color wheel as a new component
+
+  // add a rainbow brush
+
   return (
     <div style={magic}>
       <canvas
