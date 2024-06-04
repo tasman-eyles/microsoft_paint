@@ -6,7 +6,11 @@
   position: relative;
  
 }
+.screenshot {
+  float: left;
+  position: relative;
 
+}
 .color-icon:hover {
   box-shadow: 1px 1px 1px 1px black;
 }

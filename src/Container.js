@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import html2canvas from 'html2canvas'
 
 function Container({ utensil }) {
   const { tool, weight, color } = utensil
   const [magic, setMagic] = useState({
     width: '790px',
-    height: '600px',
+    height: '640px',
     backgroundColor: 'white',
     border: '5px solid rgb(207, 207, 207)',
     borderStyle: 'groove',
@@ -23,6 +24,16 @@ function Container({ utensil }) {
       handleWeight(weight)
     }
   }, [weight])
+
+  function takeScreenshot() {
+    const canvas = document.getElementById('canvas')
+    html2canvas(canvas).then((canvas) => {
+      const link = document.createElement('a')
+      link.download = 'screenshot.png'
+      link.href = canvas.toDataURL()
+      link.click()
+    })
+  }
 
   function handleBackground() {
     if (tool === 'background') {
@@ -96,6 +107,7 @@ function Container({ utensil }) {
         onClick={handleBackground}
         onMouseMove={handleMouseMove}
       ></canvas>
+      <button onClick={takeScreenshot}>Screenshot Your Artwork</button>
     </div>
   )
 }
