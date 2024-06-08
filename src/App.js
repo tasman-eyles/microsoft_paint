@@ -21,8 +21,6 @@ function App() {
       newUtensil[keyHolder] = updateItem.toLowerCase()
       setUtensil(newUtensil)
     }
-
-    console.log(newUtensil)
   }
 
   return (
