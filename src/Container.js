@@ -133,11 +133,10 @@ function Container({ utensil }) {
     [color, thickness, tool, updateCanvas]
   )
 
-  // Fix lines producing dots in browser, but smooth with inspector tools open
 
   // add screenshot to new component file Screenshot.js
 
-  // add screenshot to header component
+  // add screenshot to header component to display next to colors
 
   // add background to new component file Background.js
 
@@ -191,7 +190,12 @@ function weightToThickness(weight) {
   if (weight === 'thicker') {
     return 16
   }
-  return 30
+
+  if (weight === "thickest") {
+    return 30
+  }
+  
+  return 2
 }
 
 export default Container
