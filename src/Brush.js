@@ -11,7 +11,7 @@ function Brush({ handleUtensil }) {
         <option>Normal</option>
         <option>Thick</option>
         <option>Thicker</option>
-        <option>thickest</option>
+        <option>Thickest</option>
       </select>
     </>
   )
