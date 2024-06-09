@@ -1,91 +1,125 @@
-import React, { useState, useEffect } from 'react'
-import html2canvas from 'html2canvas'
+import React, { useRef, useCallback } from 'react'
+
+const WIDTH = 790
+const HEIGHT = 640
 
 function Container({ utensil }) {
+  // ! 🧑‍🏫
+  // we'll keep a reference to the canvas so we can use the DOM methods
+  // to directly manipulate it
+  //
+  // https://react.dev/learn/manipulating-the-dom-with-refs
+  /** @type {import('react').Ref<HTMLCanvasElement>} */
+  const canvas = useRef()
+
+  // ! 🧑‍🏫
+  // we keep a reference to the ImageData so that we can
+  // update it frequently without causing react to re-render
+  //
+  // https://react.dev/learn/referencing-values-with-refs
+  /** @type {import('react').Ref<OffscreenCanvas>} */
+  const offscreenCanvas = useRef(new OffscreenCanvas(WIDTH, HEIGHT))
+
+  /** @type {import('react').Ref<{ x: number, y: number }>} */
+  const previousCoordinates = useRef()
+
+  // ! 🧑‍🏫
+  // I'm wrapping our functions in `useCallback` to prevent re-renders
+  // for functions that use only refs, this should mean that they
+  // never cause a re-render.
+  //
+  // It also means that eslint will warn me if I'm using any state
+  // that I'm not explicitly declaring
+  const updateCanvas = useCallback(() => {
+    if (!canvas.current || !offscreenCanvas.current) {
+      return
+    }
+
+    const ctx = canvas.current.getContext('2d')
+    ctx.drawImage(offscreenCanvas.current, 0, 0)
+  }, [])
+
+  // ! 🧑‍🏫
+  // I removed a useEffect here that was copying props into state.
+  // https://react.dev/learn/you-might-not-need-an-effect
+
+  // ! 🧑‍🏫
+  // there was also some state you just weren't setting, so I deleted them
+
   const { tool, weight, color } = utensil
-  const [magic, setMagic] = useState({
+  const magic = {
     width: '790px',
     height: '640px',
     backgroundColor: 'white',
     border: '5px solid rgb(207, 207, 207)',
     borderStyle: 'groove',
-  })
-
-  const [draw, SetDraw] = useState(false)
-  const [lineSegments, setLineSegments] = useState([])
-  const [currentColor, setCurrentColor] = useState('black')
-  const [thickness, setThickness] = useState(2)
-
-  useEffect(() => {
-    const canvas = document.getElementById('canvas')
-    if (canvas) {
-      const ctx = canvas.getContext('2d')
-      ctx.beginPath()
-      handleWeight(weight)
-    }
-  }, [weight])
-
-  function takeScreenshot() {
-    const canvas = document.getElementById('canvas')
-    html2canvas(canvas).then((canvas) => {
-      const link = document.createElement('a')
-      link.download = 'screenshot.png'
-      link.href = canvas.toDataURL()
-      link.click()
-    })
   }
 
-  function handleBackground() {
+  const thickness = weightToThickness(weight)
+
+  const takeScreenshot = useCallback(async () => {
+    if (!offscreenCanvas.current) {
+      return
+    }
+    // ! 🧑‍🏫
+    // We don't need html2canvas here, we can use convertToBlob on the offscreen canvas
+    //
+    // https://caniuse.com/?search=convertToBlob
+    const blob = await offscreenCanvas.current.convertToBlob()
+    const link = document.createElement('a')
+    link.download = 'screenshot.png'
+    link.href = URL.createObjectURL(blob)
+    link.click()
+  }, [])
+
+  const handleBackground = useCallback(() => {
     if (tool === 'background') {
-      const canvas = document.getElementById('canvas')
-      const ctx = canvas.getContext('2d')
+      const ctx = offscreenCanvas.current.getContext('2d')
       ctx.fillStyle = color
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.fillRect(0, 0, WIDTH, HEIGHT)
+      updateCanvas()
     }
-  }
+  }, [tool, color, updateCanvas])
 
-  function handleWeight(weight) {
-    if (weight !== undefined && weight !== null) {
-      if (weight === 'thin') {
-        setThickness(2)
-      } else if (weight === 'normal') {
-        setThickness(5)
-      } else if (weight === 'thick') {
-        setThickness(10)
-      } else if (weight === 'thicker') {
-        setThickness(16)
-      } else if (weight === 'thickest') {
-        setThickness(30)
+  const handleMouseMove = useCallback(
+    (event) => {
+      const isMouseDown = !!(event.nativeEvent.buttons & 1)
+      if (!isMouseDown || tool === 'background') {
+        previousCoordinates.current = undefined
+        return
       }
-    }
-  }
 
-  function handleMouseDown(event) {
-    if (tool !== 'background') {
-      SetDraw(true)
-    } else {
-      SetDraw(false)
-    }
-  }
-  function handleMouseMove(event) {
-    if (draw) {
-      const canvas = document.getElementById('canvas')
-      const ctx = canvas.getContext('2d')
-      const rect = canvas.getBoundingClientRect()
-      const x = event.clientX - rect.left
-      const y = event.clientY - rect.top
+      // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/offsetX
+      const x = event.nativeEvent.offsetX
+      const y = event.nativeEvent.offsetY
+
+      // ! 🧑‍🏫
+      // we always want to be drawing a line between two points
+      // so if there is no previous coordinates, we set these as the previous
+      // and exit
+      //
+      // TODO: if we make this an array of previous points we could draw a curve instead
+      // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/bezierCurveTo
+      // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/arcTo
+      if (!previousCoordinates.current) {
+        previousCoordinates.current = { x, y }
+        return
+      }
+
+      // ! 🧑‍🏫
+      // an offscreen canvas enables us to use the Canvas API without
+      // affecting the live DOM
+      // https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas
+      const ctx = offscreenCanvas.current.getContext('2d')
+
       const newLineSegment = {
-        color: currentColor,
-        x1: x,
-        y1: y,
+        color,
+        x1: previousCoordinates.current.x,
+        y1: previousCoordinates.current.y,
         x2: x,
         y2: y,
       }
 
-      setLineSegments((prevLineSegments) => [
-        ...prevLineSegments,
-        newLineSegment,
-      ])
       ctx.strokeStyle = color
       ctx.lineWidth = thickness
       ctx.lineCap = 'round'
@@ -93,8 +127,11 @@ function Container({ utensil }) {
       ctx.moveTo(newLineSegment.x1, newLineSegment.y1)
       ctx.lineTo(newLineSegment.x2, newLineSegment.y2)
       ctx.stroke()
-    }
-  }
+      previousCoordinates.current = { x, y }
+      updateCanvas()
+    },
+    [color, thickness, tool, updateCanvas]
+  )
 
   // Fix lines producing dots in browser, but smooth with inspector tools open
 
@@ -122,10 +159,9 @@ function Container({ utensil }) {
     <div style={magic}>
       <canvas
         id="canvas"
-        width={magic.width}
-        height={magic.height}
-        onMouseDown={handleMouseDown}
-        onMouseUp={() => SetDraw(false)}
+        ref={canvas}
+        width={WIDTH}
+        height={HEIGHT}
         onClick={handleBackground}
         onMouseMove={handleMouseMove}
       ></canvas>
@@ -133,4 +169,29 @@ function Container({ utensil }) {
     </div>
   )
 }
+
+/**
+ *
+ * @param {number} weight
+ * @returns {string}
+ */
+function weightToThickness(weight) {
+  if (weight === 'thin') {
+    return 2
+  }
+
+  if (weight === 'normal') {
+    return 5
+  }
+
+  if (weight === 'thick') {
+    return 10
+  }
+
+  if (weight === 'thicker') {
+    return 16
+  }
+  return 30
+}
+
 export default Container
