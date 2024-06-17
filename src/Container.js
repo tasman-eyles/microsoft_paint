@@ -152,6 +152,19 @@ function Container({ utensil }) {
 
   // add login
 
+  // stretch concept pitch:
+
+  // 1v1 competitive paint drawing
+
+  // you get a prompt of something to draw
+
+  // you each draw it (with a time limit)
+
+  // store those images server side
+
+  // have voting open for say a week
+
+// winner winner chicken dinner
   
 
   return (
