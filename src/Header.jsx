@@ -1,7 +1,7 @@
 import React from 'react'
-import Tools from './Tools'
-import ColorContainer from './ColorContainer.js'
-import Brush from './Brush'
+import Tools from './Tools.jsx'
+import ColorContainer from './ColorContainer.jsx'
+import Brush from './Brush.jsx'
 import './Header.css'
 function Header({ handleUtensil }) {
   return (
