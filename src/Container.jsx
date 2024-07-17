@@ -18,7 +18,8 @@ function Container({ utensil }) {
   //
   // https://react.dev/learn/referencing-values-with-refs
   /** @type {import('react').Ref<OffscreenCanvas>} */
-  const offscreenCanvas = useRef(new OffscreenCanvas(WIDTH, HEIGHT))
+  const backgroundCanvas = useRef(new OffscreenCanvas(WIDTH, HEIGHT))
+  const linesCanvas = useRef(new OffscreenCanvas(WIDTH, HEIGHT))
 
   /** @type {import('react').Ref<{ x: number, y: number }>} */
   const previousCoordinates = useRef()
@@ -31,13 +32,14 @@ function Container({ utensil }) {
   // It also means that eslint will warn me if I'm using any state
   // that I'm not explicitly declaring
   const updateCanvas = useCallback(() => {
-    if (!canvas.current || !offscreenCanvas.current) {
+    if (!canvas.current || !backgroundCanvas.current || !linesCanvas.current) {
       return
     }
 
     const ctx = canvas.current.getContext('2d')
-    ctx.drawImage(offscreenCanvas.current, 0, 0)
-  }, [])
+    ctx.drawImage(backgroundCanvas.current, 0, 0)
+    ctx.drawImage(linesCanvas.current, 0, 0)
+  }, [backgroundCanvas, linesCanvas])
 
   // ! 🧑‍🏫
   // I removed a useEffect here that was copying props into state.
@@ -58,14 +60,14 @@ function Container({ utensil }) {
   const thickness = weightToThickness(weight)
 
   const takeScreenshot = useCallback(async () => {
-    if (!offscreenCanvas.current) {
+    if (!linesCanvas.current) {
       return
     }
     // ! 🧑‍🏫
     // We don't need html2canvas here, we can use convertToBlob on the offscreen canvas
     //
     // https://caniuse.com/?search=convertToBlob
-    const blob = await offscreenCanvas.current.convertToBlob()
+    const blob = await linesCanvas.current.convertToBlob()
     const link = document.createElement('a')
     link.download = 'screenshot.png'
     link.href = URL.createObjectURL(blob)
@@ -74,7 +76,7 @@ function Container({ utensil }) {
 
   const handleBackground = useCallback(() => {
     if (tool === 'background') {
-      const ctx = offscreenCanvas.current.getContext('2d')
+      const ctx = backgroundCanvas.current.getContext('2d')
       ctx.fillStyle = color
       ctx.fillRect(0, 0, WIDTH, HEIGHT)
       updateCanvas()
@@ -110,7 +112,7 @@ function Container({ utensil }) {
       // an offscreen canvas enables us to use the Canvas API without
       // affecting the live DOM
       // https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas
-      const ctx = offscreenCanvas.current.getContext('2d')
+      const ctx = linesCanvas.current.getContext('2d')
 
       const newLineSegment = {
         color,
@@ -133,16 +135,7 @@ function Container({ utensil }) {
     [color, thickness, tool, updateCanvas]
   )
 
-
-  // add screenshot to new component file Screenshot.js
-
-  // add screenshot to header component to display next to colors
-
-  // add background to new component file Background.js
-
-  // add weight to new component file Weight.js
-
-  // let background changeing not effect lines drawn
+  // let background changing not effect lines drawn
 
   // make eraser have the color value of the selected background color, not white
 
@@ -151,21 +144,6 @@ function Container({ utensil }) {
   // add a rainbow brush
 
   // add login
-
-  // stretch concept pitch:
-
-  // 1v1 competitive paint drawing
-
-  // you get a prompt of something to draw
-
-  // you each draw it (with a time limit)
-
-  // store those images server side
-
-  // have voting open for say a week
-
-// winner winner chicken dinner
-  
 
   return (
     <div style={magic}>
@@ -204,10 +182,10 @@ function weightToThickness(weight) {
     return 16
   }
 
-  if (weight === "thickest") {
+  if (weight === 'thickest') {
     return 30
   }
-  
+
   return 2
 }
 
